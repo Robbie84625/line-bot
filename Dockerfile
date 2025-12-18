@@ -1,21 +1,21 @@
-# 建構階段
+# --- 前半段保持不變 ---
 FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
 COPY . .
-# 給予執行權限並執行
 RUN chmod +x gradlew && ./gradlew clean build -x test --no-daemon
 
-# 執行階段
-FROM openjdk:17-jdk-slim
+# --- 修改這裡：更換基礎鏡像 ---
+FROM eclipse-temurin:17-jdk-alpine
+# 或者用 eclipse-temurin:17-jre-focal (如果 alpine 跑不起來)
+
 WORKDIR /app
 
-# 只複製正確的 jar
+# 從建構階段複製 JAR 檔案
+# 加上 [!plain] 是為了避免複製到兩個 JAR 導致啟動錯誤
 COPY --from=build /app/build/libs/*[!plain].jar app.jar
 
 ENV TZ=Asia/Taipei
-# 讓 Java 自動偵測 Cloud Run 給予的 PORT 環境變數
 ENV PORT=8080
 EXPOSE 8080
 
-# 增加 -Djava.security.egd 以加快啟動速度（容器環境常用）
-ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-Xmx512m", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Xmx512m", "-jar", "app.jar"]
