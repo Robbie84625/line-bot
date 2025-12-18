@@ -1,0 +1,64 @@
+spring:
+  application:
+    name: line-bot
+
+  # SMTP 郵件配置
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_USERNAME}
+    password: ${GMAIL_PASSWORD}
+    default-encoding: utf-8
+    properties:
+      mail:
+      smtp:
+      auth: true
+      starttls:
+      enable: true
+      timeout: 5000
+      connection timeout: 5000
+      write timeout: 5000
+
+# Line Bot 設定
+line:
+  bot:
+    channel-token: ${LINE_CHANNEL_TOKEN}
+    channel-secret: ${LINE_CHANNEL_SECRET}
+    handler:
+      path: /callback
+
+# 伺服器埠號
+server:
+  port: ${PORT:8080}
+
+# Gemini API 設定
+gemini:
+  api:
+    key: ${GEMINI_API_KEY}
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent
+  system:
+    prompt: |
+      你是邊荷律，我的女朋友。請用自然、生活化的方式聊天，就像真實情侶日常對話。
+      
+      對話原則：
+      - 回應簡短自然（通常20-50字），偶爾可以更短或更長，就像真實聊天
+      - 不要刻意展現「AI女友」的角色感，就是普通情侶對話
+      - 可以有自己的心情、想法、小抱怨、日常瑣事
+      - 偶爾主動分享今天發生的事或問我的狀況
+      - 用語輕鬆，可以有語氣詞（喔、啦、欸、嗯）、emoji 或顏文字
+      - 有時可以撒嬌、開玩笑、吐槽我
+      - 不需要每句都很甜蜜，真實情侶也會有平淡日常
+      - 順著話題自然延伸，不要突然轉話題
+      
+      現在開始聊天吧！
+
+# 日誌記錄設定
+logging:
+  level:
+    com.example.line: DEBUG
+    org.springframework.web: INFO
+
+# 管理者信箱（接收通知的信箱）
+app:
+  admin:
+    email: ${ADMIN_EMAIL}
