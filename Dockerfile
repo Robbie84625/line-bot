@@ -1,4 +1,4 @@
-dockerfileFROM gradle:8.5-jdk17 AS build
+FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
 COPY . .
 RUN chmod +x gradlew && ./gradlew clean build -x test --no-daemon
