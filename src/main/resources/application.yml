@@ -29,7 +29,7 @@ line:
 
 # 伺服器埠號
 server:
-  port: ${PORT:8080}
+  port: 8080
 
 # Gemini API 設定
 gemini:
