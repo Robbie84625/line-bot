@@ -25,22 +25,34 @@ repositories {
 }
 
 dependencies {
+    // Spring Boot Web - 提供 REST API 和 Web 應用核心功能
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    // LINE Bot SDK
+    // LINE Bot SDK - LINE 聊天機器人開發套件
     implementation 'com.linecorp.bot:line-bot-spring-boot-handler:7.6.0'
 
-    // HTTP Client (呼叫 Claude API)
-    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    // Apache HTTP Client - HTTP 請求客戶端
+    implementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
 
-    implementation("com.google.genai:google-genai:1.31.0")
+    // Google Generative AI - Google AI (Gemini) SDK
+    implementation 'com.google.genai:google-genai:1.31.0'
 
+    // Apache Commons Lang - 常用工具類庫
+    implementation 'org.apache.commons:commons-lang3:3.18.0'
+
+    // Spring Boot Mail - 郵件發送功能
+    implementation 'org.springframework.boot:spring-boot-starter-mail:4.0.0'
 
     compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // DevTools - 開發時熱重載功能
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // 測試依賴
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
 }
 
 tasks.named('test') {
