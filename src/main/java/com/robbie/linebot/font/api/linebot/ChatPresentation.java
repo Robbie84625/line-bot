@@ -15,6 +15,7 @@ public class ChatPresentation {
         ChatFlow.Command.builder()
             .userId(chatRequest.getUserId())
             .replyToken(chatRequest.getReplyToken())
+            .messageId(chatRequest.getMessageId())
             .message(chatRequest.getMessage())
             .build();
 
