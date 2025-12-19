@@ -68,6 +68,7 @@ public class GeminiAIProvider {
             .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(requestBody)))
             .build();
 
+    System.out.println(request);
     HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
     // 檢查 HTTP 狀態碼
