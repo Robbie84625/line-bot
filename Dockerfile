@@ -3,7 +3,7 @@ WORKDIR /app
 COPY . .
 RUN chmod +x gradlew && ./gradlew clean bootJar -x test --no-daemon
 
-FROM eclipse-temurin:17-jdk-alpine
+FROM eclipse-temurin:17-jdk-jammy
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
 
