@@ -1,6 +1,7 @@
 package com.robbie.linebot.infra.provider;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -30,35 +31,36 @@ public class GeminiAIProvider {
 
   private final AtomicLong lastRequestTime = new AtomicLong(0);
   private static final long MIN_REQUEST_INTERVAL = 4000;
-  private final AtomicInteger requestCounter = new AtomicInteger(0);
 
   public String chat(String message) throws Exception {
-    int requestNumber = requestCounter.incrementAndGet();
-    System.out.println("========================================");
-    System.out.println("第 " + requestNumber + " 次請求 Gemini API");
-    System.out.println("訊息內容: " + message);
-    System.out.println("時間: " + System.currentTimeMillis());
-    System.out.println("========================================");
 
-    log.info("GeminiAIProvider 實例: {}, 開始處理請求", this.hashCode());
     rateLimit();
-    log.info("[Gemini實例-{}] 通過限流,準備發送請求", this.hashCode());
+
     String url = UriComponentsBuilder.fromUri(URI.create(apiUrl)).queryParam("key", apiKey).toUriString();
 
     JsonObject requestBody = new JsonObject();
 
     // 建構 system instruction
+    JsonArray systemParts = new JsonArray();
+    JsonObject systemPart = new JsonObject();
+    systemPart.addProperty("text", systemPrompt);
+    systemParts.add(systemPart);
+
     JsonObject systemInstruction = new JsonObject();
-    JsonObject systemParts = new JsonObject();
-    systemParts.addProperty("text", systemPrompt);
-    systemInstruction.add("parts", gson.toJsonTree(new JsonObject[] {systemParts}));
+    systemInstruction.add("parts", systemParts);
     requestBody.add("system_instruction", systemInstruction);
 
+    JsonArray contentParts = new JsonArray();
+    JsonObject contentPart = new JsonObject();
+    contentPart.addProperty("text", message);
+    contentParts.add(contentPart);
+
     JsonObject content = new JsonObject();
-    JsonObject parts = new JsonObject();
-    parts.addProperty("text", message);
-    content.add("parts", gson.toJsonTree(new JsonObject[] {parts}));
-    requestBody.add("contents", gson.toJsonTree(new JsonObject[] {content}));
+    content.add("parts", contentParts);
+
+    JsonArray contents = new JsonArray();
+    contents.add(content);
+    requestBody.add("contents", contents);
 
     HttpRequest request =
         HttpRequest.newBuilder()
@@ -67,9 +69,8 @@ public class GeminiAIProvider {
             .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(requestBody)))
             .build();
 
-    log.info("[Gemini實例-{}] 發送 HTTP 請求", this.hashCode());
     HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-    log.info("[Gemini實例-{}] 收到回應,狀態碼: {}", this.hashCode(), response.statusCode());
+
     // 檢查 HTTP 狀態碼
     if (response.statusCode() == 429) {
       log.error("Gemini API 限流錯誤 (429)");
