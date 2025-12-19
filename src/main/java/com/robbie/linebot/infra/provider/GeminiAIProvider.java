@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,8 +30,16 @@ public class GeminiAIProvider {
 
   private final AtomicLong lastRequestTime = new AtomicLong(0);
   private static final long MIN_REQUEST_INTERVAL = 4000;
+  private final AtomicInteger requestCounter = new AtomicInteger(0);
 
   public String chat(String message) throws Exception {
+    int requestNumber = requestCounter.incrementAndGet();
+    System.out.println("========================================");
+    System.out.println("第 " + requestNumber + " 次請求 Gemini API");
+    System.out.println("訊息內容: " + message);
+    System.out.println("時間: " + System.currentTimeMillis());
+    System.out.println("========================================");
+
     log.info("GeminiAIProvider 實例: {}, 開始處理請求", this.hashCode());
     rateLimit();
     log.info("[Gemini實例-{}] 通過限流,準備發送請求", this.hashCode());
