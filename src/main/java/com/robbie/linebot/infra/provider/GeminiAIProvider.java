@@ -61,6 +61,15 @@ public class GeminiAIProvider {
     contents.add(content);
     requestBody.add("contents", contents);
 
+    String bodyJson = gson.toJson(requestBody);
+
+    log.info("=== Gemini Request Debug Start ===");
+    log.info("URL: {}", url);
+    log.info("Method: POST");
+    log.info("Headers: Content-Type=application/json");
+    log.info("Request Body JSON:\n{}", bodyJson);
+    log.info("=== Gemini Request Debug End ===");
+
     HttpRequest request =
         HttpRequest.newBuilder()
             .uri(URI.create(url))
@@ -68,7 +77,6 @@ public class GeminiAIProvider {
             .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(requestBody)))
             .build();
 
-    System.out.println(request);
     HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
     // 檢查 HTTP 狀態碼
