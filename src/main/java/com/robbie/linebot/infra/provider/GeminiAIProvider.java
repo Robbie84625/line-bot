@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.concurrent.atomic.AtomicLong;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -26,9 +27,13 @@ public class GeminiAIProvider {
   private final HttpClient httpClient = HttpClient.newHttpClient();
   private final Gson gson = new Gson();
 
-  public String chat(String message) throws Exception {
+  private final AtomicLong lastRequestTime = new AtomicLong(0);
+  private static final long MIN_REQUEST_INTERVAL = 4000;
 
-    String url = UriComponentsBuilder.fromUriString(apiUrl).queryParam("key", apiKey).toUriString();
+  public String chat(String message) throws Exception {
+    rateLimit();
+
+    String url = UriComponentsBuilder.fromUri(URI.create(apiUrl)).queryParam("key", apiKey).toUriString();
 
     JsonObject requestBody = new JsonObject();
 
@@ -55,7 +60,18 @@ public class GeminiAIProvider {
     HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
     // 檢查 HTTP 狀態碼
+    if (response.statusCode() == 429) {
+      log.error("Gemini API 限流錯誤 (429)");
+      throw new RuntimeException("RATE_LIMIT_429");
+    }
+
+    if (response.statusCode() == 404) {
+      log.error("Gemini API 路徑錯誤 (404): {}", response.body());
+      throw new RuntimeException("API_NOT_FOUND_404");
+    }
+
     if (response.statusCode() != 200) {
+      log.error("Gemini API 回應錯誤: {} - {}", response.statusCode(), response.body());
       throw new RuntimeException("Gemini API 回應錯誤: " + response.statusCode());
     }
 
@@ -70,5 +86,25 @@ public class GeminiAIProvider {
         .getAsJsonObject()
         .get("text")
         .getAsString();
+  }
+
+  private void rateLimit() {
+    synchronized (this) {
+      long now = System.currentTimeMillis();
+      long timeSinceLastRequest = now - lastRequestTime.get();
+
+      if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
+        long waitTime = MIN_REQUEST_INTERVAL - timeSinceLastRequest;
+        log.info("限流中,等待 {} ms", waitTime);
+        try {
+          Thread.sleep(waitTime);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          throw new RuntimeException("限流等待被中斷", e);
+        }
+      }
+
+      lastRequestTime.set(System.currentTimeMillis());
+    }
   }
 }
