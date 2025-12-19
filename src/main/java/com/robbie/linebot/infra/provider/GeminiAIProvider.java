@@ -55,20 +55,12 @@ public class GeminiAIProvider {
     contentParts.add(contentPart);
 
     JsonObject content = new JsonObject();
+    content.addProperty("role", "user");
     content.add("parts", contentParts);
 
     JsonArray contents = new JsonArray();
     contents.add(content);
     requestBody.add("contents", contents);
-
-    String bodyJson = gson.toJson(requestBody);
-
-    log.info("=== Gemini Request Debug Start ===");
-    log.info("URL: {}", url);
-    log.info("Method: POST");
-    log.info("Headers: Content-Type=application/json");
-    log.info("Request Body JSON:\n{}", bodyJson);
-    log.info("=== Gemini Request Debug End ===");
 
     HttpRequest request =
         HttpRequest.newBuilder()
