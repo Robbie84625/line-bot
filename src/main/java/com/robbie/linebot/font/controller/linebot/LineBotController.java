@@ -1,8 +1,5 @@
 package com.robbie.linebot.font.controller.linebot;
 
-import com.linecorp.bot.messaging.client.MessagingApiClient;
-import com.linecorp.bot.messaging.model.ReplyMessageRequest;
-import com.linecorp.bot.messaging.model.TextMessage;
 import com.linecorp.bot.spring.boot.handler.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.handler.annotation.LineMessageHandler;
 import com.linecorp.bot.webhook.model.Event;
@@ -20,9 +17,6 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @SuppressWarnings("unused")
 public class LineBotController {
-  //  private final MessagingApiClient messagingApiClient;
-  //  private final GeminiAIProvider geminiService;
-
   private final ChatPresentation chatPresentation;
 
   @EventMapping
