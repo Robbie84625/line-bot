@@ -9,6 +9,7 @@ import java.net.http.HttpResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
 @Component
@@ -27,7 +28,7 @@ public class GeminiAIProvider {
 
   public String chat(String message) throws Exception {
 
-    String url = apiUrl + apiKey;
+    String url = UriComponentsBuilder.fromUriString(apiUrl).queryParam("key", apiKey).toUriString();
 
     JsonObject requestBody = new JsonObject();
 
