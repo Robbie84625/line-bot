@@ -31,8 +31,9 @@ public class GeminiAIProvider {
   private static final long MIN_REQUEST_INTERVAL = 4000;
 
   public String chat(String message) throws Exception {
+    log.info("GeminiAIProvider 實例: {}, 開始處理請求", this.hashCode());
     rateLimit();
-
+    log.info("[Gemini實例-{}] 通過限流,準備發送請求", this.hashCode());
     String url = UriComponentsBuilder.fromUri(URI.create(apiUrl)).queryParam("key", apiKey).toUriString();
 
     JsonObject requestBody = new JsonObject();
@@ -57,8 +58,9 @@ public class GeminiAIProvider {
             .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(requestBody)))
             .build();
 
+    log.info("[Gemini實例-{}] 發送 HTTP 請求", this.hashCode());
     HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
+    log.info("[Gemini實例-{}] 收到回應,狀態碼: {}", this.hashCode(), response.statusCode());
     // 檢查 HTTP 狀態碼
     if (response.statusCode() == 429) {
       log.error("Gemini API 限流錯誤 (429)");
