@@ -23,11 +23,13 @@ public class LineBotController {
   public void handleMessage(MessageEvent event) {
     // 要先檢查訊息類型
     if (event.message() instanceof TextMessageContent textContent) {
+      String messageId = textContent.id();
       String userMessage = textContent.text();
       String replyToken = event.replyToken();
 
       ChatRequest request =
           ChatRequest.builder()
+              .messageId(messageId)
               .userId(event.source().userId())
               .message(textContent.text())
               .replyToken(event.replyToken())
