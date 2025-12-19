@@ -27,6 +27,7 @@ public class ChatFlow {
   public void execute(Command command) {
     String message = command.getMessage();
     String messageId = command.getMessageId();
+    log.info("[開始] 收到請求 - MessageID: {}, 內容: {}", messageId, message);
 
     if (isDuplicate(messageId)) {
       log.warn("重複的訊息,忽略: {}", messageId);
@@ -36,11 +37,14 @@ public class ChatFlow {
     log.info("處理訊息 - ID: {}, 內容: {}", messageId, message);
 
     try {
+      log.info("[Gemini] 準備呼叫 API");
       // 步驟1: 呼叫 Gemini API 取得回應
       String geminiAPIResponse = callGeminiAPI(message);
-
+      log.info("[Gemini] API 回應成功");
+      log.info("[LINE] 準備回覆訊息");
       // 步驟2: 回覆 LINE 訊息
       replyToLine(command.getReplyToken(), geminiAPIResponse);
+      log.info("[LINE] 回覆成功");
 
     } catch (Exception e) {
       log.error("系統錯誤", e);
