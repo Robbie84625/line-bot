@@ -12,7 +12,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
 @Component
@@ -36,7 +35,7 @@ public class GeminiAIProvider {
 
     rateLimit();
 
-    String url = UriComponentsBuilder.fromUri(URI.create(apiUrl)).queryParam("key", apiKey).toUriString();
+    String url = apiUrl + "?key=" + apiKey;
 
     JsonObject requestBody = new JsonObject();
 
