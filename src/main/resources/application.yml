@@ -35,7 +35,7 @@ server:
 gemini:
   api:
     key: ${GEMINI_API_KEY}
-    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent
+    url: ${GEMINI_API_URL}
   system:
     prompt: |
       你是邊荷律，我的女朋友。請用自然、生活化的方式聊天，就像真實情侶日常對話。

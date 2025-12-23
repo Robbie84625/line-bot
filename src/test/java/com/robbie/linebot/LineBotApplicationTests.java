@@ -16,13 +16,4 @@ class LineBotApplicationTests {
   void contextLoads() {
   }
 
-  @Test
-  public void sendTestEmail() {
-    SimpleMailMessage message = new SimpleMailMessage();
-    message.setTo("loby84625@gmail.com"); //設置收件人信箱
-    message.setSubject("Test Email"); //設置信箱主題
-    message.setText("This is a test email."); //設置信箱內容
-    javaMailSender.send(message); //發送郵件
-  }
-
 }
