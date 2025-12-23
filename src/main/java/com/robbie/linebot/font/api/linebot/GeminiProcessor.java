@@ -1,7 +1,6 @@
 package com.robbie.linebot.font.api.linebot;
 
 import com.github.benmanes.caffeine.cache.Cache;
-
 import com.linecorp.bot.messaging.client.MessagingApiClient;
 import com.linecorp.bot.messaging.model.ReplyMessageRequest;
 import com.linecorp.bot.messaging.model.TextMessage;

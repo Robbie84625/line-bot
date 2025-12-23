@@ -24,8 +24,6 @@ line:
   bot:
     channel-token: ${LINE_CHANNEL_TOKEN}
     channel-secret: ${LINE_CHANNEL_SECRET}
-    handler:
-      path: /callback
 
 # 伺服器埠號
 server:
