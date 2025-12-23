@@ -1,46 +1,64 @@
 package com.robbie.linebot.font.controller.linebot;
 
-import com.linecorp.bot.spring.boot.handler.annotation.EventMapping;
-import com.linecorp.bot.spring.boot.handler.annotation.LineMessageHandler;
+import com.linecorp.bot.parser.LineSignatureValidator;
+import com.linecorp.bot.parser.WebhookParser;
+import com.linecorp.bot.webhook.model.CallbackRequest;
 import com.linecorp.bot.webhook.model.Event;
 import com.linecorp.bot.webhook.model.MessageEvent;
 import com.linecorp.bot.webhook.model.TextMessageContent;
 import com.robbie.linebot.font.api.linebot.ChatPresentation;
 import com.robbie.linebot.font.api.linebot.model.ChatRequest;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
-@LineMessageHandler
-@Component
-@AllArgsConstructor
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequiredArgsConstructor
 @Slf4j
-@SuppressWarnings("unused")
 public class LineBotController {
   private final ChatPresentation chatPresentation;
 
-  @EventMapping
-  public void handleMessage(MessageEvent event) {
-    // 要先檢查訊息類型
-    if (event.message() instanceof TextMessageContent textContent) {
-      String messageId = textContent.id();
-      String userMessage = textContent.text();
-      String replyToken = event.replyToken();
+  @Value("${line.bot.channel-secret}")
+  private String channelSecret;
 
-      ChatRequest request =
-          ChatRequest.builder()
-              .messageId(messageId)
-              .userId(event.source().userId())
-              .message(textContent.text())
-              .replyToken(event.replyToken())
-              .build();
+  @PostMapping("/callback")
+  public ResponseEntity<String> callback(
+      @RequestHeader("X-Line-Signature") String signature, @RequestBody String payload) {
+    try {
+      // 驗證簽章 (這在大型專案中非常重要，確保請求真的來自 LINE)
+      LineSignatureValidator validator = new LineSignatureValidator(channelSecret.getBytes());
+      WebhookParser parser = new WebhookParser(validator);
 
-      chatPresentation.sendChatMessage(request);
+      // 解析 Payload (注意：新版傳入的是 byte[])
+      CallbackRequest callbackRequest = parser.handle(signature, payload.getBytes());
+
+      // 3. 處理事件
+      for (Event event : callbackRequest.events()) {
+        // 使用新版的 Java Pattern Matching (if instanceof) 判斷更簡潔
+        if (event instanceof MessageEvent messageEvent
+            && messageEvent.message() instanceof TextMessageContent textContent) {
+          ChatRequest request =
+              ChatRequest.builder()
+                  .messageId(messageEvent.message().id())
+                  .userId(messageEvent.source().userId())
+                  .message(textContent.text())
+                  .replyToken(messageEvent.replyToken())
+                  .build();
+
+          chatPresentation.sendChatMessage(request);
+        }
+      }
+      return ResponseEntity.ok("OK");
+    } catch (Exception e) {
+      log.error("Webhook 解析失敗: {}", e.getMessage());
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
-  }
-
-  @EventMapping
-  public void handleDefaultEvent(Event event) {
-    log.info("收到事件: {}", event);
   }
 }
