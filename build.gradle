@@ -27,9 +27,12 @@ repositories {
 dependencies {
     // Spring Boot Web - 提供 REST API 和 Web 應用核心功能
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    //  Java 本地 Cache
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.2.3'
 
     // LINE Bot SDK - LINE 聊天機器人開發套件
-    implementation 'com.linecorp.bot:line-bot-spring-boot-handler:7.6.0'
+    implementation 'com.linecorp.bot:line-bot-messaging-api-client:9.13.0'
+    implementation 'com.linecorp.bot:line-bot-spring-boot-client:9.13.0'
 
     // Apache HTTP Client - HTTP 請求客戶端
     implementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
