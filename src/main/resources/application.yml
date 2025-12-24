@@ -53,7 +53,7 @@ gemini:
 # 日誌記錄設定
 logging:
   level:
-    com.example.line: DEBUG
+    com.robbie.linebot: DEBUG
     org.springframework.web: INFO
 
 # 管理者信箱（接收通知的信箱）
