@@ -10,4 +10,5 @@ public class ChatRequest {
   private String userId;
   private String replyToken;
   private String message;
+  private long arrivalTimestamp;
 }

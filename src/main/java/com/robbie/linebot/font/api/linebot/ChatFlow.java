@@ -2,9 +2,10 @@ package com.robbie.linebot.font.api.linebot;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.linecorp.bot.messaging.client.MessagingApiClient;
-import com.linecorp.bot.messaging.model.ShowLoadingAnimationRequest;
+
 import java.util.concurrent.TimeUnit;
+
+import com.robbie.linebot.infra.provider.LineBotProvider;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ChatFlow {
   private final GeminiProcessor geminiProcessor;
-  private final MessagingApiClient messagingApiClient;
+  private final LineBotProvider lineBotProvider;
 
   // 10秒內重複的訊息 ID 直接擋掉 (防止 Line 重試)
   private final Cache<String, Boolean> duplicateLock =
@@ -46,19 +47,17 @@ public class ChatFlow {
       return;
     }
 
-    try {
-      messagingApiClient.showLoadingAnimation(
-          new ShowLoadingAnimationRequest(command.getUserId(), 30)
-      );
-    } catch (Exception e) {
-      log.warn("無法顯示 Loading 動畫: {}", e.getMessage());
-    }
-
     userBusyLock.put(userId, true);
+
+    // 假如在思考顯示動畫給使用者
+    lineBotProvider.showLoading(userId,30);
 
     // 3. 任務交辦 (交給 Processor 在背景跑)
     // 這裡會立刻回傳，不等待 AI 結果
-    geminiProcessor.processAsync(command, userBusyLock);
+    geminiProcessor.processAsync(command, () -> {
+      userBusyLock.invalidate(userId);
+      log.info("[鎖釋放] 使用者 {} 已可再次輸入", userId);
+    });
 
     log.info("[任務已派發] User: {}, MsgId: {}", userId, msgId);
   }
@@ -70,5 +69,6 @@ public class ChatFlow {
     private String userId;
     private String replyToken;
     private String message;
+    private  long arrivalTimestamp;
   }
 }

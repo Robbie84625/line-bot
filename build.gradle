@@ -6,7 +6,7 @@ plugins {
 
 group = 'com.robbie'
 version = '0.0.1-SNAPSHOT'
-description = 'LINE 聊天機器人 - 基於 Claude API 的智能對話助手'
+description = '整合 Gimini AI 的 LINE Bot - 智能對話機器人實作'
 
 java {
     toolchain {
@@ -35,28 +35,20 @@ dependencies {
     implementation 'com.linecorp.bot:line-bot-spring-boot-client:9.13.0'
     implementation 'com.linecorp.bot:line-bot-parser:9.13.0'
 
-    // Apache HTTP Client - HTTP 請求客戶端
-    implementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
 
     // Google Generative AI - Google AI (Gemini) SDK
     implementation 'com.google.genai:google-genai:1.31.0'
 
-    // Apache Commons Lang - 常用工具類庫
-    implementation 'org.apache.commons:commons-lang3:3.18.0'
 
     // Spring Boot Mail - 郵件發送功能
     implementation 'org.springframework.boot:spring-boot-starter-mail:4.0.0'
 
+    // Lombok - 簡化  Java 代碼
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
     // DevTools - 開發時熱重載功能
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-
-    // 測試依賴
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.mockito:mockito-core'
-    testImplementation 'org.mockito:mockito-junit-jupiter'
 }
 
 tasks.named('test') {
