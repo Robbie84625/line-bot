@@ -41,6 +41,10 @@ public class LineBotController {
 
       // 3. 處理事件
       for (Event event : callbackRequest.events()) {
+        long lineTimestamp = event.timestamp();
+        long receiveTime = System.currentTimeMillis();
+        log.info("[階段 1: Webhook 接收] 網路傳輸延遲: {} ms", (receiveTime - lineTimestamp));
+
         // 使用新版的 Java Pattern Matching (if instanceof) 判斷更簡潔
         if (event instanceof MessageEvent messageEvent
             && messageEvent.message() instanceof TextMessageContent textContent) {
@@ -50,6 +54,7 @@ public class LineBotController {
                   .userId(messageEvent.source().userId())
                   .message(textContent.text())
                   .replyToken(messageEvent.replyToken())
+                  .arrivalTimestamp(receiveTime)
                   .build();
 
           chatPresentation.sendChatMessage(request);

@@ -17,6 +17,7 @@ public class ChatPresentation {
             .replyToken(chatRequest.getReplyToken())
             .messageId(chatRequest.getMessageId())
             .message(chatRequest.getMessage())
+            .arrivalTimestamp(chatRequest.getArrivalTimestamp())
             .build();
 
     chatFlow.execute(command);
