@@ -1,6 +1,13 @@
 spring:
   application:
     name: line-bot
+  task:
+    execution:
+      pool:
+        core-size: 5
+        max-size: 20
+        queue-capacity: 50
+      thread-name-prefix: gemini-exec-
 
   # SMTP 郵件配置
   mail:
@@ -11,13 +18,13 @@ spring:
     default-encoding: utf-8
     properties:
       mail:
-      smtp:
-      auth: true
-      starttls:
-      enable: true
-      timeout: 5000
-      connection timeout: 5000
-      write timeout: 5000
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          timeout: 5000
+          connection-timeout: 5000
+          write-timeout: 5000
 
 # Line Bot 設定
 line:
