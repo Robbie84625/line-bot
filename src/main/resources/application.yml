@@ -67,3 +67,4 @@ gcp:
   location: ${GCP_LOCATION:asia-east1}
   queue-id: ${GCP_QUEUE_ID}
   backend-url: ${GCP_BACKEND_URL}
+  service-account-email: ${GCP_SERVICE_ACCOUNT_EMAIL}
