@@ -5,7 +5,6 @@ import com.robbie.linebot.infra.provider.LineBotProvider;
 import com.robbie.linebot.infra.support.ErrorReporter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,8 +15,7 @@ public class GeminiProcessor {
   private final LineBotProvider lineBotProvider;
   private final ErrorReporter errorReporter;
 
-  @Async
-  public void processAsync(ChatFlow.Command command, Runnable onComplete) {
+  public void process(ChatFlow.Command command) {
     String userId = command.getUserId();
     String replyToken = command.getReplyToken();
     long processStart = System.currentTimeMillis();
@@ -44,9 +42,6 @@ public class GeminiProcessor {
     } catch (Exception e) {
       // 5. 如果連發送 LINE 都失敗，那就報警，這時候已經沒辦法回覆使用者了
       errorReporter.report("LINE 訊息回覆失敗", e);
-    } finally {
-      // 釋放使用者忙碌狀態，讓該使用者可以進行下一次對話
-      if (onComplete != null) onComplete.run();
     }
   }
 }

@@ -1,13 +1,6 @@
 spring:
   application:
     name: line-bot
-  task:
-    execution:
-      pool:
-        core-size: 5
-        max-size: 20
-        queue-capacity: 50
-      thread-name-prefix: gemini-exec-
 
   # SMTP 郵件配置
   mail:
@@ -67,3 +60,10 @@ logging:
 app:
   admin:
     email: ${ADMIN_EMAIL}
+
+# Google Cloud Tasks 設定
+gcp:
+  project-id: ${GCP_PROJECT_ID}
+  location: ${GCP_LOCATION:asia-east1}
+  queue-id: ${GCP_QUEUE_ID}
+  backend-url: ${GCP_BACKEND_URL}
