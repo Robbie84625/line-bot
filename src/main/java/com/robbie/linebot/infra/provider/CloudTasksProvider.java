@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.tasks.v2.CloudTasksClient;
 import com.google.cloud.tasks.v2.HttpMethod;
 import com.google.cloud.tasks.v2.HttpRequest;
+import com.google.cloud.tasks.v2.OidcToken;
 import com.google.cloud.tasks.v2.QueueName;
 import com.google.cloud.tasks.v2.Task;
 import com.google.protobuf.ByteString;
@@ -27,6 +28,9 @@ public class CloudTasksProvider {
   @Value("${gcp.backend-url}")
   private String backendUrl;
 
+  @Value("${gcp.service-account-email}")
+  private String serviceAccountEmail;
+
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   public void enqueueTask(ChatTask task) {
@@ -42,6 +46,9 @@ public class CloudTasksProvider {
               .setHttpMethod(HttpMethod.POST)
               .putHeaders("Content-Type", "application/json")
               .setBody(ByteString.copyFromUtf8(payload))
+              .setOidcToken(OidcToken.newBuilder()
+                  .setServiceAccountEmail(serviceAccountEmail)
+                  .build())
               .build();
 
       Task gcpTask = Task.newBuilder().setHttpRequest(httpRequest).build();
