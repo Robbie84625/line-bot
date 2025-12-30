@@ -49,6 +49,9 @@ dependencies {
 
     // DevTools - 開發時熱重載功能
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // Google Cloud Tasks - 任務排程服務
+    implementation "com.google.cloud:google-cloud-tasks:2.81.0"
 }
 
 tasks.named('test') {

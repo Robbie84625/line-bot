@@ -3,6 +3,8 @@ package com.robbie.linebot.font.api.linebot;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
+import com.robbie.linebot.infra.provider.CloudTasksProvider;
+import com.robbie.linebot.model.ChatTask;
 import java.util.concurrent.TimeUnit;
 
 import com.robbie.linebot.infra.provider.LineBotProvider;
@@ -16,8 +18,8 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @RequiredArgsConstructor
 public class ChatFlow {
-  private final GeminiProcessor geminiProcessor;
   private final LineBotProvider lineBotProvider;
+  private final CloudTasksProvider cloudTasksProvider;
 
   // 10秒內重複的訊息 ID 直接擋掉 (防止 Line 重試)
   private final Cache<String, Boolean> duplicateLock =
@@ -50,16 +52,22 @@ public class ChatFlow {
     userBusyLock.put(userId, true);
 
     // 假如在思考顯示動畫給使用者
-    lineBotProvider.showLoading(userId,30);
+    lineBotProvider.showLoading(userId, 30);
 
     // 3. 任務交辦 (交給 Processor 在背景跑)
     // 這裡會立刻回傳，不等待 AI 結果
-    geminiProcessor.processAsync(command, () -> {
-      userBusyLock.invalidate(userId);
-      log.info("[鎖釋放] 使用者 {} 已可再次輸入", userId);
-    });
+    ChatTask task = ChatTask.builder()
+        .messageId(command.getMessageId())
+        .userId(command.getUserId())
+        .replyToken(command.getReplyToken())
+        .message(command.getMessage())
+        .arrivalTimestamp(command.getArrivalTimestamp())
+        .build();
 
-    log.info("[任務已派發] User: {}, MsgId: {}", userId, msgId);
+
+    cloudTasksProvider.enqueueTask(task);
+
+    log.info("[任務已進入隊列] User: {}, MsgId: {}", userId, msgId);
   }
 
   @Getter
@@ -69,6 +77,6 @@ public class ChatFlow {
     private String userId;
     private String replyToken;
     private String message;
-    private  long arrivalTimestamp;
+    private long arrivalTimestamp;
   }
 }
